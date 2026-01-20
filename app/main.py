@@ -6,7 +6,7 @@ from pathlib import Path
 from app.routes.merge import router as merge_router
 
 # -------------------------------------------------
-# App initialization
+# App init
 # -------------------------------------------------
 app = FastAPI(
     title="Quick-PDF",
@@ -14,11 +14,11 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# -------------------------------------------------
-# Static files (CSS, JS)
-# -------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 
+# -------------------------------------------------
+# Static files
+# -------------------------------------------------
 app.mount(
     "/static",
     StaticFiles(directory=BASE_DIR / "static"),
@@ -26,37 +26,30 @@ app.mount(
 )
 
 # -------------------------------------------------
-# Routes
+# API ROUTES (FIRST)
 # -------------------------------------------------
 app.include_router(merge_router)
 
 
-# -------------------------------------------------
-# Home UI
-# -------------------------------------------------
-@app.get("/", response_class=HTMLResponse)
-def home():
-    html_path = BASE_DIR / "static" / "index.html"
-    return html_path.read_text(encoding="utf-8")
-
-
-# -------------------------------------------------
-# Version endpoint (PRODUCTION STANDARD)
-# -------------------------------------------------
 @app.get("/version")
 def version():
     return {
         "name": "Quick-PDF",
         "version": "2.0.0",
         "environment": "production",
-        "ui": "v2-dark",
+        "ui": "v2",
         "stack": ["FastAPI", "Docker", "AWS EC2"]
     }
 
 
-# -------------------------------------------------
-# Health check (optional but professional)
-# -------------------------------------------------
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+# -------------------------------------------------
+# UI ROUTE (LAST – VERY IMPORTANT)
+# -------------------------------------------------
+@app.get("/", response_class=HTMLResponse)
+def home():
+    return (BASE_DIR / "static" / "index.html").read_text(encoding="utf-8")
