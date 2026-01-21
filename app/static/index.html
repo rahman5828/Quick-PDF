@@ -1,120 +1,259 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <title>Quick-PDF</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      --bg: #0f172a;
+      --card: rgba(255,255,255,0.08);
+      --text: #ffffff;
+      --subtext: #cbd5f5;
+      --primary: #3b82f6;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --subtext: #475569;
+      --primary: #2563eb;
+    }
+
+    * { box-sizing: border-box; font-family: Inter, sans-serif; }
+
     body {
       margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      background: #f4f6fb;
-      color: #333;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
     }
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
+    .app {
+      width: 100%;
+      max-width: 480px;
+      padding: 40px;
+      background: var(--card);
+      border-radius: 18px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 30px 60px rgba(0,0,0,.4);
     }
 
-    .annie-banner {
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      color: white;
-      padding: 24px;
-      border-radius: 16px;
-      text-align: center;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-    }
-
-    .annie-banner h2 {
-      margin: 0;
-      font-size: 26px;
-    }
-
-    .annie-banner p {
-      margin-top: 10px;
-      font-size: 17px;
-      opacity: 0.95;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      text-align: center;
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
     }
 
+    .logo { font-size: 26px; font-weight: 700; }
+
+    .toggle { cursor: pointer; font-size: 18px; }
+
     .subtitle {
-      text-align: center;
-      color: #666;
+      color: var(--subtext);
+      font-size: 14px;
       margin-bottom: 25px;
     }
 
-    input[type="file"] {
-      display: block;
-      margin-bottom: 15px;
+    h2 { margin-bottom: 15px; }
+
+    .upload {
+      margin-bottom: 20px;
     }
+
+    .upload-box {
+      border: 2px dashed rgba(255,255,255,.3);
+      padding: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .file-name {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--subtext);
+      text-align: center;
+    }
+
+    input { display: none; }
 
     button {
-      background: #667eea;
-      color: white;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
       border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 15px;
+      margin-top: 10px;
     }
 
-    button:hover {
-      background: #556cd6;
+    button:disabled { opacity: .6; }
+
+    .loader {
+      width: 36px;
+      height: 36px;
+      border: 4px solid rgba(255,255,255,.2);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 18px auto;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress {
+      height: 8px;
+      background: rgba(255,255,255,.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width .3s ease;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--subtext);
     }
 
     footer {
+      margin-top: 22px;
       text-align: center;
-      margin-top: 40px;
-      color: #777;
-      font-size: 14px;
+      font-size: 13px;
+      color: var(--subtext);
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
 
-    <!-- TEMP MESSAGE FOR ANNIE -->
-    <div class="annie-banner">
-      <h2>❤️ Hi Annie</h2>
-      <p>
-        Naan idha full-ah scratch la irundhu build panninen —
-        code, cloud, DevOps ellam 🧠💻  
-        <br><strong>Epdi iruku madam?</strong> 🙂
-      </p>
-    </div>
-
-    <!-- MAIN APP -->
-    <div class="card">
-      <h1>Quick-PDF</h1>
-      <p class="subtitle">Merge your PDFs instantly and securely</p>
-
-      <form action="/merge" method="post" enctype="multipart/form-data">
-        <input type="file" name="files" accept="application/pdf" required />
-        <input type="file" name="files" accept="application/pdf" required />
-        <button type="submit">Merge PDFs</button>
-      </form>
-    </div>
-
-    <footer>
-      © 2026 Quick-PDF · Built with ❤️ by Abdul Rahman
-    </footer>
-
+<div class="app">
+  <div class="top">
+    <div class="logo">📄 Quick-PDF</div>
+    <div class="toggle" onclick="toggleTheme()">🌓</div>
   </div>
+
+  <div class="subtitle">Fast • Secure • World-Class PDF Tools</div>
+
+  <h2>Merge PDFs</h2>
+
+  <div class="upload">
+    <label class="upload-box">
+      Select first PDF
+      <input id="file1" type="file" accept="application/pdf" onchange="showName(1)">
+    </label>
+    <div class="file-name" id="name1"></div>
+  </div>
+
+  <div class="upload">
+    <label class="upload-box">
+      Select second PDF
+      <input id="file2" type="file" accept="application/pdf" onchange="showName(2)">
+    </label>
+    <div class="file-name" id="name2"></div>
+  </div>
+
+  <button id="btn" onclick="merge()">Merge & Download</button>
+
+  <div class="loader" id="loader"></div>
+
+  <div class="progress" id="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <footer>
+    Built by <b>Rahman</b> • FastAPI • Docker • AWS 🚀
+  </footer>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const saved = localStorage.getItem("theme");
+  if (saved) root.setAttribute("data-theme", saved);
+
+  function toggleTheme() {
+    const t = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", t);
+    localStorage.setItem("theme", t);
+  }
+
+  function showName(n) {
+    const file = document.getElementById(`file${n}`).files[0];
+    document.getElementById(`name${n}`).innerText = file ? file.name : "";
+  }
+
+  async function merge() {
+    const f1 = file1.files[0];
+    const f2 = file2.files[0];
+
+    if (!f1 || !f2) {
+      status.innerText = "❌ Please select both PDFs";
+      return;
+    }
+
+    btn.disabled = true;
+    loader.style.display = "block";
+    progress.style.display = "block";
+    status.innerText = "Merging PDFs...";
+    bar.style.width = "0%";
+
+    let percent = 0;
+    const timer = setInterval(() => {
+      percent = Math.min(percent + 4, 90);
+      bar.style.width = percent + "%";
+    }, 200);
+
+    const fd = new FormData();
+    fd.append("files", f1);
+    fd.append("files", f2);
+
+    const res = await fetch("/merge", { method: "POST", body: fd });
+
+    clearInterval(timer);
+    bar.style.width = "100%";
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "merged.pdf";
+    a.click();
+
+    loader.style.display = "none";
+    btn.disabled = false;
+    status.innerText = "✅ Download started";
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/static/sw.js");
+  }
+</script>
+
 </body>
 </html>
